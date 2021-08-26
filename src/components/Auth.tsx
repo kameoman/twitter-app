@@ -120,11 +120,29 @@ const Auth: React.FC = () => {
               }}
             />
             <Button
-              type="submit"
               fullWidth
               variant="contained"
               color="primary"
               className={classes.submit}
+              startIcon={<EmailIcon />}
+              // 新規登録かログインかの条件分岐を記述
+              onClick={
+                isLogin
+                  ? async () => {
+                      try {
+                        await signInEmail();
+                      } catch (err) {
+                        alert(err.message);
+                      }
+                    }
+                  : async () => {
+                      try {
+                        await signUpEmail();
+                      } catch (err) {
+                        alert(err.message);
+                      }
+                    }
+              }
             >
               {isLogin ? "Login" : "Register"}
             </Button>
