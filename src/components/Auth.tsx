@@ -195,6 +195,14 @@ const Auth: React.FC = () => {
               }}
             />
             <Button
+            // バリデーション
+              disabled={
+                isLogin
+                // emailの入力が無い場合又は、パスワードが六文字無い場合
+                ? !email || password.length < 6
+                // 新規登録時いずれかが無い場合無効化
+                : !username || !email || password.length < 6 || !avatarImage
+              }
               fullWidth
               variant="contained"
               color="default"
