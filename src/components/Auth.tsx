@@ -50,7 +50,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.secondary.main,
   },
   form: {
-    width: "100%", // Fix IE 11 issue.
+    width: "100%",
     marginTop: theme.spacing(1),
   },
   submit: {
@@ -67,7 +67,7 @@ const Auth: React.FC = () => {
   // 画像が無い場合もあるのでユニオンタイプにする
   const [avatarImage, setAvatarImage] = useState<File | null>(null);
   // 最初はログインモード（true)
-  const [isLogin, steIsLogin] = useState(true);
+  const [isLogin, setIsLogin] = useState(true);
   // アバター画像を1つ目のみ表示する
   const onChangeImageHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files![0]) {
@@ -77,7 +77,10 @@ const Auth: React.FC = () => {
   };
 
   const signInEmail = async () => {
-    const authUser = await auth.signInWithEmailAndPassword(email, password);
+    await auth.signInWithEmailAndPassword(email, password);
+  };
+  const signUpEmail = async () => {
+    const authUser = await auth.createUserWithEmailAndPassword(email, password);
     let url = "";
     if (avatarImage) {
       const S =
@@ -106,11 +109,6 @@ const Auth: React.FC = () => {
     );
   };
 
-  // 新規登録
-  const signUpEmail = async () => {
-    await auth.createUserWithEmailAndPassword(email, password);
-  };
-
   const signInGoogle = async () => {
     await auth.signInWithPopup(provider).catch((err) => alert(err.message));
   };
@@ -127,25 +125,45 @@ const Auth: React.FC = () => {
             {isLogin ? "Login" : "Register"}
           </Typography>
           <form className={classes.form} noValidate>
-
-            {/* 新規登録モードで名前の入力モードを出す */}
-            {!isLogin && ( <>
-              <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              id="username"
-              label="Username"
-              name="username"
-              autoComplete="username"
-              autoFocus
-              value={username}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                setUsername(e.target.value);
-              }}
-            />
-            </>)}
+            {/* 新規登録モードの時、名前の入力モードを出す */}
+            {!isLogin && (
+              <>
+                <TextField
+                  variant="outlined"
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="username"
+                  label="Username"
+                  name="username"
+                  autoComplete="username"
+                  value={username}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    setUsername(e.target.value);
+                  }}
+                />
+                <Box textAlign="center">
+                  <IconButton>
+                    <label>
+                      <AccountCircleIcon
+                        fontSize="large"
+                        // アバターイメージがあるかないかでcssの切り替え
+                        className={
+                          avatarImage
+                            ? styles.login_addIconLoaded
+                            : styles.login_addIcon
+                        }
+                      />
+                      <input
+                        className={styles.login_hiddenIcon}
+                        type="file"
+                        onChange={onChangeImageHandler}
+                      />
+                    </label>
+                  </IconButton>
+                </Box>
+              </>
+            )}
             <TextField
               variant="outlined"
               margin="normal"
@@ -179,7 +197,7 @@ const Auth: React.FC = () => {
             <Button
               fullWidth
               variant="contained"
-              color="primary"
+              color="default"
               className={classes.submit}
               startIcon={<EmailIcon />}
               // 新規登録かログインかの条件分岐を記述
@@ -210,7 +228,7 @@ const Auth: React.FC = () => {
               <Grid item>
                 <span
                   className={styles.login_toggleMode}
-                  onClick={() => steIsLogin(!isLogin)}
+                  onClick={() => setIsLogin(!isLogin)}
                 >
                   {isLogin ? "Create new account ?" : "Back to login"}
                 </span>
