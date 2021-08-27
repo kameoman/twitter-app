@@ -127,6 +127,25 @@ const Auth: React.FC = () => {
             {isLogin ? "Login" : "Register"}
           </Typography>
           <form className={classes.form} noValidate>
+
+            {/* 新規登録モードで名前の入力モードを出す */}
+            {!isLogin && ( <>
+              <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              id="username"
+              label="Username"
+              name="username"
+              autoComplete="username"
+              autoFocus
+              value={username}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                setUsername(e.target.value);
+              }}
+            />
+            </>)}
             <TextField
               variant="outlined"
               margin="normal"
