@@ -61,11 +61,41 @@ const Auth: React.FC = () => {
   const classes = useStyles();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
+  // 画像が無い場合もあるのでユニオンタイプにする
+  const [avatarImage, setAvatarImage] = useState<File | null>(null);
   // 最初はログインモード（true)
   const [isLogin, steIsLogin] = useState(true);
+  // アバター画像を1つ目のみ表示する
+  const onChangeImageHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files![0]) {
+      setAvatarImage(e.target.files![0]);
+      e.target.value = "";
+    }
+  };
 
   const signInEmail = async () => {
-    await auth.signInWithEmailAndPassword(email, password);
+    const authUser = await auth.signInWithEmailAndPassword(email, password);
+    let url = "";
+    if (avatarImage) {
+      const S =
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+      // 生成したいランダムな文字数
+      const N = 16;
+      const randomChar = Array.from(crypto.getRandomValues(new Uint32Array(N)))
+        .map((n) => S[n % S.length])
+        .join("");
+      const fileName = randomChar + "_" + avatarImage.name;
+      // アバターのイメージを保存する（保存先）
+      await storage.ref(`avatars/${fileName}`).put(avatarImage);
+      // 画像のURLを取ってくるgetDownloadURL()
+      url = await storage.ref("avatars").child(fileName).getDownloadURL();
+    }
+    // ユーザーの名前やアバター画像をプロフィールに反映する(更新する)
+    await authUser.user?.updateProfile({
+      displayName: username,
+      photoURL: url,
+    });
   };
 
   // 新規登録
@@ -150,7 +180,7 @@ const Auth: React.FC = () => {
               <Grid item xs>
                 <span className={styles.login_reset}>Forgot password?</span>
               </Grid>
-              <Grid item xs>
+              <Grid item>
                 <span
                   className={styles.login_toggleMode}
                   onClick={() => steIsLogin(!isLogin)}
