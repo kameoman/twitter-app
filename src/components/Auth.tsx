@@ -24,9 +24,29 @@ import EmailIcon from "@material-ui/icons/Email";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 
+function getModalStyle() {
+  const top = 50;
+  const left = 50;
+
+  return {
+    top: `${top}%`,
+    left: `${left}%`,
+    transform: `translate(-${top}%, -${left}%)`,
+  };
+}
+
 const useStyles = makeStyles((theme) => ({
   root: {
     height: "100vh",
+  },
+  modal: {
+    outline: "none",
+    position: "absolute",
+    width: 400,
+    borderRadius: 10,
+    backgroundColor: "white",
+    boxShadow: theme.shadows[5],
+    padding: theme.spacing(10),
   },
   image: {
     backgroundImage:
@@ -68,6 +88,22 @@ const Auth: React.FC = () => {
   const [avatarImage, setAvatarImage] = useState<File | null>(null);
   // 最初はログインモード（true)
   const [isLogin, setIsLogin] = useState(true);
+  const [resetEmail, setResetEmail] = useState("");
+  const [openModal, setOpenModal] = React.useState(false);
+
+  const sendResetEmail = async (e: React.MouseEvent<HTMLElement>) => {
+    await auth
+      .sendPasswordResetEmail(resetEmail)
+      .then(() => {
+        setOpenModal(false);
+        setResetEmail("");
+      })
+      .catch((err) => {
+        alert(err.message);
+        setResetEmail("");
+      });
+  };
+
   // アバター画像を1つ目のみ表示する
   const onChangeImageHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files![0]) {
@@ -137,6 +173,7 @@ const Auth: React.FC = () => {
                   label="Username"
                   name="username"
                   autoComplete="username"
+                  autoFocus
                   value={username}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     setUsername(e.target.value);
@@ -173,7 +210,6 @@ const Auth: React.FC = () => {
               label="Email Address"
               name="email"
               autoComplete="email"
-              autoFocus
               value={email}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 setEmail(e.target.value);
@@ -195,19 +231,19 @@ const Auth: React.FC = () => {
               }}
             />
             <Button
-            // バリデーション
+              // バリデーション
               disabled={
                 isLogin
-                // emailの入力が無い場合又は、パスワードが六文字無い場合
-                ? !email || password.length < 6
-                // 新規登録時いずれかが無い場合無効化
-                : !username || !email || password.length < 6 || !avatarImage
+                  ? // emailの入力が無い場合又は、パスワードが六文字無い場合
+                    !email || password.length < 6
+                  : // 新規登録時いずれかが無い場合無効化
+                    !username || !email || password.length < 6 || !avatarImage
               }
               fullWidth
               variant="contained"
               color="default"
-              className={classes.submit}
               startIcon={<EmailIcon />}
+              className={classes.submit}
               // 新規登録かログインかの条件分岐を記述
               onClick={
                 isLogin
@@ -231,7 +267,12 @@ const Auth: React.FC = () => {
             </Button>
             <Grid container>
               <Grid item xs>
-                <span className={styles.login_reset}>Forgot password?</span>
+                <span
+                  className={styles.login_reset}
+                  onClick={() => setOpenModal(true)}
+                >
+                  Forgot password?
+                </span>
               </Grid>
               <Grid item>
                 <span
@@ -246,12 +287,34 @@ const Auth: React.FC = () => {
               fullWidth
               variant="contained"
               color="primary"
+              startIcon={<CameraIcon />}
               className={classes.submit}
               onClick={signInGoogle}
             >
               SignIn with Google
             </Button>
           </form>
+          <Modal open={openModal} onClose={() => setOpenModal(false)}>
+            <div style={getModalStyle()} className={classes.modal}>
+              <div className={styles.login_modal}>
+                <TextField
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  type="email"
+                  name="email"
+                  label="Reset E-mail"
+                  value={resetEmail}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    setResetEmail(e.target.value);
+                  }}
+                />
+                <IconButton onClick={sendResetEmail}>
+                  <SendIcon />
+                </IconButton>
+              </div>
+            </div>
+          </Modal>
         </div>
       </Grid>
     </Grid>
