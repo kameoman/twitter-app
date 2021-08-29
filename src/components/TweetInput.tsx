@@ -21,15 +21,53 @@ const TweetInput = () => {
   const sendTweet = (e: React.FormEvent<HTMLFormElement>) => {
     // submitボタンでサイトがリロードされないようにする
     e.preventDefault();
-    if (tweetImage){}
-    else{
+    if (tweetImage) {
+      const S =
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+      // 生成したいランダムな文字数
+      const N = 16;
+      const randomChar = Array.from(crypto.getRandomValues(new Uint32Array(N)))
+        .map((n) => S[n % S.length])
+        .join("");
+      const fileName = randomChar + "_" + tweetImage.name;
+      const uploadTweetImg = storage.ref(`images/${fileName}`).put(tweetImage);
+      uploadTweetImg.on(
+        firebase.storage.TaskEvent.STATE_CHANGED,
+        // 投稿画像のステイトの状況管理（今回は空）
+        () => {},
+        // 投稿画像のエラー発生時
+        (err) => {
+          alert(err.message);
+          // 正常終了時
+        },
+        async () => {
+          // 画像投稿時ファイルの名前を取得する
+          await storage
+            .ref("image")
+            .child(fileName)
+            .getDownloadURL()
+            .then(
+              //取得できたらデータベースへ保存する
+              async (url) => {
+                await db.collection("posts").add({
+                  avatar: user.photoUrl,
+                  image: url,
+                  text: tweetMsg,
+                  timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                  username: user.displayName,
+                });
+              }
+            );
+        }
+      );
+    } else {
       db.collection("posts").add({
         avatar: user.photoUrl,
-        image:"",
+        image: "",
         text: tweetMsg,
         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
         username: user.displayName,
-      })
+      });
     }
     // 投稿後にリセットする
     setTweetImage(null);
