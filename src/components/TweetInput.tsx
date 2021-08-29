@@ -43,7 +43,7 @@ const TweetInput = () => {
         async () => {
           // 画像投稿時ファイルの名前を取得する
           await storage
-            .ref("image")
+            .ref("images")
             .child(fileName)
             .getDownloadURL()
             .then(
@@ -99,7 +99,7 @@ const TweetInput = () => {
                   tweetImage ? styles.tweet_addIconLoaded : styles.tweet_addIcon
                 }
               />
-              <input 
+              <input
                 className={styles.tweet_hiddenIcon}
                 type="file"
                 onChange={onChangeImageHandler}
@@ -109,12 +109,13 @@ const TweetInput = () => {
         </div>
         {/* ツイートのメッセージが無い場合に投稿できないようにする */}
         <Button
-        type="submit"
-        disabled={!tweetMsg}
-        className={
-          tweetMsg ? styles.tweet_sendBtn : styles.tweet_sendDisableBtn
-        }>
-          tweet
+          type="submit"
+          disabled={!tweetMsg}
+          className={
+            tweetMsg ? styles.tweet_sendBtn : styles.tweet_sendDisableBtn
+          }
+        >
+          Tweet
         </Button>
       </form>
     </>
