@@ -7,7 +7,7 @@ import { Avatar, Button, IconButton } from "@material-ui/core";
 import firebase from "firebase/app";
 import AddAPhotoIcon from "@material-ui/icons/AddAPhoto";
 
-const TweetInput = () => {
+const TweetInput: React.FC = () => {
   const user = useSelector(selectUser);
   // 投稿内容をstateを使って保持する
   const [tweetImage, setTweetImage] = useState<File | null>(null);
