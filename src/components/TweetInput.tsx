@@ -107,6 +107,15 @@ const TweetInput = () => {
             </label>
           </IconButton>
         </div>
+        {/* ツイートのメッセージが無い場合に投稿できないようにする */}
+        <Button
+        type="submit"
+        disabled={!tweetMsg}
+        className={
+          tweetMsg ? styles.tweet_sendBtn : styles.tweet_sendDisableBtn
+        }>
+          tweet
+        </Button>
       </form>
     </>
   );
