@@ -104,7 +104,8 @@ const Post: React.FC<PROPS> = (props) => {
 
             <span className={styles.post_commentUser}>@{com.username}</span>
             <span className={styles.post_commentText}>{com.text}</span>
-            <span className={styles.post_headerTime}>{}</span>
+            <span className={styles.post_headerTime}>
+              {new Date(com.timestamp?.toDate()).toLocaleString()}</span>
           </div>
         ))}
 
