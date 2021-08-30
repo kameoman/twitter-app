@@ -18,10 +18,51 @@ interface PROPS {
   timestamp: any;
   username: string;
 }
+interface COMMENT {
+  id: string;
+  avatar: string;
+  text: string;
+  timestamp: any;
+  username: string;
+}
 
 const Post: React.FC<PROPS> = (props) => {
   const user = useSelector(selectUser);
   const [comment, setComment] = useState("");
+  const [comments, setComments] = useState<COMMENT[]>([
+    {
+      id: "",
+      avatar: "",
+      text: "",
+      timestamp: null,
+      username: "",
+    },
+  ]);
+
+  // firebaseからコメントのデータを取得する
+  useEffect(() => {
+    const unSub = db
+      .collection("posts")
+      .doc(props.postId)
+      .collection("comments")
+      .orderBy("timestamp", "desc")
+      .onSnapshot((snapshot) => {
+        setComments(
+          snapshot.docs.map((doc) => ({
+            id: doc.id,
+            avatar: doc.data().avatar,
+            text: doc.data().text,
+            username: doc.data().username,
+            timestamp: doc.data().timestamp,
+          }))
+        );
+      });
+
+    return () => {
+      unSub();
+    };
+  }, [props.postId]);
+
   const newComment = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     db.collection("posts").doc(props.postId).collection("comments").add({
@@ -57,6 +98,14 @@ const Post: React.FC<PROPS> = (props) => {
             <img src={props.image} alt="tweet" />
           </div>
         )}
+        {comments.map((com) => (
+          <div key={com.id} className={styles.post_comment}>
+            <Avatar src={com.avatar} />
+
+            <span className={styles.post_commentUser}>@{com.username}</span>
+          </div>
+        ))}
+
         <form onSubmit={newComment}>
           <div className={styles.post_from}>
             <input
