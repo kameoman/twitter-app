@@ -103,6 +103,8 @@ const Post: React.FC<PROPS> = (props) => {
             <Avatar src={com.avatar} />
 
             <span className={styles.post_commentUser}>@{com.username}</span>
+            <span className={styles.post_commentText}>{com.text}</span>
+            <span className={styles.post_headerTime}>{}</span>
           </div>
         ))}
 
