@@ -26,7 +26,16 @@ interface COMMENT {
   username: string;
 }
 
+const useStyles = makeStyles((theme) => ({
+  small: {
+    width: theme.spacing(3),
+    height: theme.spacing(3),
+    marginRight: theme.spacing(1),
+  },
+}));
+
 const Post: React.FC<PROPS> = (props) => {
+  const classes = useStyles();
   const user = useSelector(selectUser);
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState<COMMENT[]>([
@@ -100,12 +109,13 @@ const Post: React.FC<PROPS> = (props) => {
         )}
         {comments.map((com) => (
           <div key={com.id} className={styles.post_comment}>
-            <Avatar src={com.avatar} />
+            <Avatar src={com.avatar} className={classes.small} />
 
             <span className={styles.post_commentUser}>@{com.username}</span>
             <span className={styles.post_commentText}>{com.text}</span>
             <span className={styles.post_headerTime}>
-              {new Date(com.timestamp?.toDate()).toLocaleString()}</span>
+              {new Date(com.timestamp?.toDate()).toLocaleString()}
+            </span>
           </div>
         ))}
 
